@@ -4,51 +4,46 @@
 
 #define INT_BUFFER_LENGTH 16
 
-void gather_string(char * buffer, size_t length, const char * prompt){
+#define ERROR_NON_NUMERIC_INPUT 1
+#define ERROR_INT_OVERFLOW 2
 
-  printf("%s", prompt);
+void gather_string(char * buffer, size_t length, FILE * input,
+                  const char * prompt){
 
-  // apparently fgets reads length -1 chars into the buffer
-  fgets(buffer, length, stdin);
+  if (NULL != prompt){
+      printf("%s", prompt);
+  }
+
+  if (NULL != buffer && NULL != input){
+      fgets(buffer, length, input);
+  }
 }
 
 /**
-  Convert a long value to int value safely.
-  If long value underflows or overflows, a non-zero
-  error code is returned and out is left untouched.
+    Convert a string into an integer.
+    Caller must check error parameter to ensure
+    that conversion result is accurate. The value zero is
+    returned in error cases.
 */
-int convert_long_to_int(int * out, const long in){
-
-    if (in > INT_MAX){
-      return 1;
-    } else if (in < INT_MIN){
-      return -1;
-    }
-    *out = (int) in;
-    return 0;
-}
-
-/**
-    Gather an integer from the user and write it to out.
-    Non-zero return value indicates bad input.
-    @return 0 if no error
-*/
-int gather_int(int * out, const char * prompt){
-
-  char buf[INT_BUFFER_LENGTH];
-  gather_string(buf, INT_BUFFER_LENGTH, prompt);
+int str_to_int(const char * in, int * error){
 
   char * garbage_bin;
-  long long_val = strtol(buf, garbage_bin, 0);
+
+  long long_val = strtol(in, &garbage_bin, 0);
 
   // Check if any chars were thrown away by strtol
   if (*garbage_bin != '\0'){
       //The input contained some non numeric garbage,  abort
-      return 1;
+      *error = ERROR_NON_NUMERIC_INPUT;
+      return 0;
   }
-  int error = convert_long_to_int(out, long_val);
 
-  return error;
+  if (long_val > INT_MAX || long_val < INT_MIN){
+      *error = ERROR_INT_OVERFLOW;
+      return 0;
+  }
+
+  return (int) long_val;
 }
 
 int main(){
