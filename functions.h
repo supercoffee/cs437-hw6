@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
 
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
