@@ -1,0 +1,8 @@
+HI my name is Benjamin Daschel and this line of text
+Daschel
+123
+0
+nonexistent.txt
+output.txt
+drowssap
+drowssap

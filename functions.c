@@ -9,6 +9,14 @@
 #define ERROR_NON_NUMERIC_INPUT 1
 #define ERROR_INT_OVERFLOW 2
 
+int seek_to_newline(FILE * stream){
+
+  int ch, ctr;
+  for (ctr = 0; (ch = getc(stream)) != EOF && ch != '\n'; ctr++);
+
+  return ctr;
+}
+
 void gather_string(char * buffer, size_t length, FILE * input,
                   const char * prompt){
 
@@ -18,10 +26,20 @@ void gather_string(char * buffer, size_t length, FILE * input,
 
   if (NULL != buffer && NULL != input){
       fgets(buffer, length, input);
-
       // Replace newline character with null byte.
       // https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
-      buffer[strcspn(buffer, "\n")] = '\0';
+
+      size_t chars_read = strcspn(buffer, "\n");
+
+      // If no newline occurs before the end of the string, then it must be
+      // sitting on the buffer and needs to be removed.
+      if (chars_read == length -1){
+          seek_to_newline(stdin);
+      } else {
+        // Set newline character to null because fgets leaves it there
+        buffer[chars_read] = '\0';
+      }
+
   }
 }
 
