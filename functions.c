@@ -2,12 +2,52 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
-
+#include "nacl/include/amd64/crypto_hash.h"
 #include "functions.h"
+#include "base64.h"
 #define INT_BUFFER_LENGTH 16
 
 #define ERROR_NON_NUMERIC_INPUT 1
 #define ERROR_INT_OVERFLOW 2
+
+int write_password_to_file(char * password){
+
+  FILE * password_file = fopen(PASSWORD_FILE, "w");
+  if (NULL != password_file){
+    store_password(password, password_file);
+    fclose(password_file);
+    return 0;
+  }
+  return 1;
+}
+
+int store_password(char * password, FILE * output){
+
+  if (NULL != output){
+
+    unsigned char hash[crypto_hash_BYTES];
+    // Invoke NaCl hash function (based on sha512) to hash the pw securely
+    crypto_hash(hash, (unsigned char *) password, strlen(password));
+
+    // Determine how long the hashed version is
+    // and how long the base 64 version will be
+    size_t hash_length = strlen((char *) hash);
+    int encoded_length = Base64encode_len(hash_length);
+
+    // Allocate a buffer large enough for the Base 64 version of the hash
+    char * encoded_hash = (char *) calloc(encoded_length, sizeof(char));
+    Base64encode(encoded_hash, (char *) hash, hash_length);
+
+    output_to_stream(encoded_hash, output);
+
+    return 0;
+  }
+  return 1;
+}
+
+void output_to_stream(char * output, FILE * stream){
+  fprintf(stream, "%s", output);
+}
 
 int seek_to_newline(FILE * stream){
 
@@ -50,7 +90,7 @@ void gather_string(char * buffer, size_t length, FILE * input,
     that conversion result is accurate. The value zero is
     returned in error cases.
 */
-int str_to_int(const char * in, int * error){
+int32_t str_to_int(const char * in, int * error){
 
   char * garbage_bin = "";
 
