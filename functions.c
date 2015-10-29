@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/errno.h>
 #include "nacl/include/amd64/crypto_hash.h"
+#include "nacl/include/amd64/crypto_verify_32.h"
 #include "functions.h"
 #include "base64.h"
 
@@ -11,6 +12,38 @@
 
 #define ERROR_NON_NUMERIC_INPUT 1
 #define ERROR_INT_OVERFLOW 2
+
+#define HASH_BUF_LEN 255
+
+
+/*
+    Returns 0 if passwords match.
+    Returns -1 if password does not match stored hash
+    Returns 1 if password file cannot be opened
+*/
+int verify_password_from_file(char * password){
+
+  FILE * password_file = fopen(PASSWORD_FILE, "r");
+  if (NULL != password_file){
+    // Grab the base64 encoded hash from the passwords file
+    char stored_hash[HASH_BUF_LEN];
+    read_string_from_file(stored_hash, HASH_BUF_LEN, password_file, NULL);
+    fclose(password_file);
+
+    // Convert base 64 encoded PW hash into binary string
+    int stored_hash_num_bytes = Base64decode_len(stored_hash);
+    char * stored_hash_bytes = (char *) calloc(stored_hash_num_bytes, sizeof(char));
+    Base64decode(stored_hash_bytes, stored_hash);
+
+    // Hash the user's submitted password
+    unsigned char hash[crypto_hash_BYTES];
+    crypto_hash(hash, (unsigned char *) password, strlen(password));
+
+    // Compare hashes using constant time function to prevent timing attacks
+    return crypto_verify_32((unsigned char *) stored_hash_bytes, hash);
+  }
+  return 1;
+}
 
 int write_password_to_file(char *password) {
 

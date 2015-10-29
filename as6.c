@@ -8,7 +8,30 @@
 #define FILENAME_BUF_LEN 255
 #define PW_BUF_LEN 65
 
+/*
+  This function is pretty stupid. It just keeps looping until
+  the password is entered and verified correctly. Each time the password
+  is written out to file **Before** verifying it, per the assignments.
+*/
+void gather_and_verify_password(){
 
+  char password[PW_BUF_LEN];
+  // verify password returns non zero if verification fails
+  int password_mismatch = 1;
+
+  while (password_mismatch){
+    //read password and verify
+    read_string_from_file(password, PW_BUF_LEN, stdin, "Enter password (8-64 chars): ");
+    write_password_to_file(password);
+
+    read_string_from_file(password, PW_BUF_LEN, stdin, "Enter password again: ");
+    password_mismatch = verify_password_from_file(password);
+
+    if (password_mismatch){
+      output_to_stream("Passwords do not match. \n", stdout);
+    }
+  }
+}
 
 int read_int_from_file(){
 
@@ -65,11 +88,7 @@ int main(){
   FILE * output_file = fopen(output_filename, "w");
   do_something(output_file);
 
-  char password[PW_BUF_LEN];
-  //read password and verify
-  read_string_from_file(password, PW_BUF_LEN, stdin, "Enter password (8-64 chars): ");
-
-  read_string_from_file(password, PW_BUF_LEN, stdin, "Enter password again: ");
+  gather_and_verify_password();
 
   //write output to output file
 

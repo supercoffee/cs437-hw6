@@ -23,4 +23,6 @@ void output_to_stream(char * output, FILE * stream);
 
 int write_password_to_file(char * password);
 
+int verify_password_from_file(char * password);
+
 #endif
