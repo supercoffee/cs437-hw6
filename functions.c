@@ -59,8 +59,8 @@ int seek_to_newline(FILE *stream) {
     return ctr;
 }
 
-void gather_string(char *buffer, size_t length, FILE *input,
-                   const char *prompt) {
+void read_string_from_file(char *buffer, size_t length, FILE *input,
+                           const char *prompt) {
 
     if (NULL != prompt) {
         printf("%s", prompt);
@@ -92,6 +92,8 @@ void gather_string(char *buffer, size_t length, FILE *input,
     that conversion result is accurate. The value zero is
     returned in error cases.
 */
+
+
 int32_t str_to_int(const char *in, int *error) {
     char *end_ptr;
 
