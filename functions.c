@@ -15,6 +15,32 @@
 
 #define HASH_BUF_LEN 255
 
+/*
+https://codereview.stackexchange.com/questions/37177/simpler-method-to-detect-int-overflow
+*/
+int safe_add(int32_t a, int32_t b, int * error) {
+
+    int32_t result; 
+
+    int overflow = __builtin_sadd_overflow(a, b, &result);
+    if (overflow){
+      *error = overflow;
+    }
+    return result;
+}
+
+int safe_multiply(int32_t a, int32_t b, int * error){
+
+    int32_t result;
+  // New in GCC5 to check for overflow when multiplying.
+  // Why did this take 30 years to get into a standard library?
+  int overflow = __builtin_smul_overflow(a, b, &result);
+  if (overflow){
+    *error = 1;
+  }
+  return result;
+}
+
 
 /*
     Returns 0 if passwords match.

@@ -25,4 +25,8 @@ int write_password_to_file(char * password);
 
 int verify_password_from_file(char * password);
 
+int safe_add(int32_t a, int32_t b, int * error);
+
+int safe_multiply(int32_t a, int32_t b, int * error);
+
 #endif
