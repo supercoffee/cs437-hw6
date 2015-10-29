@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <string.h>
+#include <sys/errno.h>
 #include "nacl/include/amd64/crypto_hash.h"
 #include "functions.h"
 #include "base64.h"
@@ -92,12 +93,20 @@ void gather_string(char *buffer, size_t length, FILE *input,
     returned in error cases.
 */
 int32_t str_to_int(const char *in, int *error) {
-    char *garbage_bin = "";
+    char *end_ptr = "";
 
-    long long_val = strtol(in, &garbage_bin, 0);
+    long long_val = strtol(in, &end_ptr, 0);
+
+    // check errno to see if the number is outside the range of long
+    if ((errno == ERANGE && (long_val == LONG_MAX || long_val == LONG_MIN))
+        || (errno != 0 && long_val == 0)) {
+        *error = ERROR_INT_OVERFLOW;
+
+        return 0;
+    }
 
     // Check if any chars were thrown away by strtol
-    if (*garbage_bin != '\0') {
+    if (*end_ptr != '\0') {
         //The input contained some non numeric garbage,  abort
         *error = ERROR_NON_NUMERIC_INPUT;
         return 0;
