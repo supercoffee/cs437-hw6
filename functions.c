@@ -93,7 +93,7 @@ void gather_string(char *buffer, size_t length, FILE *input,
     returned in error cases.
 */
 int32_t str_to_int(const char *in, int *error) {
-    char *end_ptr = "";
+    char *end_ptr;
 
     long long_val = strtol(in, &end_ptr, 0);
 
