@@ -67,7 +67,7 @@ void read_string_from_file(char *buffer, size_t length, FILE *input,
     }
 
     if (NULL != buffer && NULL != input) {
-        fgets(buffer, length, input);
+        fgets(buffer, (int)length, input);
         // Replace newline character with null byte.
         // https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
 
