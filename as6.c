@@ -6,7 +6,60 @@
 
 #define STR_BUF_LEN 50
 #define FILENAME_BUF_LEN 255
-#define PW_BUF_LEN 65
+#define PW_BUF_LEN 65\
+
+FILE * get_input_file(){
+  //read input file name
+  char input_filename[FILENAME_BUF_LEN];
+  FILE * input_file = NULL;
+
+  while (NULL == input_file){
+    read_string_from_file(input_filename, FILENAME_BUF_LEN, stdin, "Enter input file path: ");
+    input_file = fopen(input_filename, "r");
+
+    if(NULL == input_file){
+      printf("%s\n", "File does not exist or cannot read file.");
+    }
+  }
+  return input_file;
+}
+
+void write_to_output_file(FILE * input_file, FILE * output_file, int32_t int_val2,
+                    int32_t int_val1, char * fname, char * lname){
+
+  // output user's name
+  output_to_stream(fname, output_file);
+  output_to_stream(" ", output_file);
+  output_to_stream(lname, output_file);
+  output_to_stream("\n", output_file);
+
+ // Do addition and output results to file, warning if overflow occurred.
+ int overflow = 0;
+ int32_t addition_result = safe_add(int_val2, int_val1, &overflow);
+ if (overflow){
+   output_to_stream("WARNING: Addition resulted in overflow: \n", output_file);
+ }
+ fprintf(output_file, "%d\n", addition_result);
+
+ // Do multiplication and output results to file, warning if overflow occurred.
+ overflow = 0;
+ int32_t multiplication_result = safe_multiply(int_val1, int_val2, &overflow);
+ if (overflow){
+   output_to_stream("WARNING: Multiplication resulted in overflow: \n", output_file);
+ }
+ fprintf(output_file, "%d\n", multiplication_result);
+
+
+ // copy contents of input file to output file
+
+ char buffer[128];
+ while(! feof(input_file)){
+    fgets(buffer, 128, input_file);
+    output_to_stream(buffer, output_file);
+ }
+
+}
+
 
 /*
   This function is pretty stupid. It just keeps looping until
@@ -55,10 +108,6 @@ int read_int_from_file(){
   return result;
 }
 
-void do_something(FILE * file){
-  (void) file;
-}
-
 
 int main(){
 
@@ -76,21 +125,16 @@ int main(){
   int_val1 = read_int_from_file();
   int_val2 = read_int_from_file();
 
-  //read input file name
-  char input_filename[FILENAME_BUF_LEN];
-  read_string_from_file(input_filename, FILENAME_BUF_LEN, stdin, "Enter input file path: ");
-  FILE * input_file = fopen(input_filename, "r");
-  do_something(input_file);
+  FILE * input_file = get_input_file();
 
   //read output file name
   char output_filename[FILENAME_BUF_LEN];
   read_string_from_file(output_filename, FILENAME_BUF_LEN, stdin, "Enter output file path: ");
   FILE * output_file = fopen(output_filename, "w");
-  do_something(output_file);
 
   gather_and_verify_password();
 
   //write output to output file
-
+  write_to_output_file(input_file, output_file, int_val2, int_val1, fname, lname);
 
 }
