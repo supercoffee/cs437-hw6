@@ -29,4 +29,6 @@ int safe_add(int32_t a, int32_t b, int * error);
 
 int safe_multiply(int32_t a, int32_t b, int * error);
 
+int compare_file_paths(char * path1, char * path2);
+
 #endif

@@ -6,6 +6,26 @@ void print_result(int value, int error){
   printf("Result: %d   Error: %d\n", value, error);
 }
 
+void test_compare_file_paths(){
+
+  char a[] = "/a/b/c/d/e";
+  char b[] = "/a/b/c/d";
+
+  int matches = compare_file_paths(a, b);
+  printf("%s matches %s ? %d\n", a, b, matches);
+
+  char c[] = "/a/b/c/d";
+  char d[] = "/a/b/d";
+  matches = compare_file_paths(c,d);
+  printf("%s matches %s ? %d\n", c, d, matches);
+
+  char e[] = "/a/b/c/";
+  char f[] = "/a/b/c/d";
+  matches = compare_file_paths(e,f);
+  printf("%s matches %s ? %d\n", e, f, matches);
+
+}
+
 void test_safe_add(){
 
   int32_t a = INT_MAX;
@@ -76,4 +96,6 @@ int main(){
 
   test_safe_add();
   test_safe_multiply();
+
+  test_compare_file_paths();
 }

@@ -16,6 +16,29 @@
 #define HASH_BUF_LEN 255
 
 /*
+  Determine if path1 is a subpath of path2.
+  Path2 must contain the entirety of path1 for this to happen.
+  // TODO FIX THIS
+*/
+int compare_file_paths(char * path1, char * path2){
+
+  size_t path1_len = strlen(path1), path2_len = strlen(path2);
+
+  if (path1_len  > path2_len){
+    return 0;
+  }
+
+  int i;
+  for (i = 0; i < path1_len; i++){
+    if (path1[i] != path2[i]){
+      return 0;
+    }
+  }
+  return 1;
+}
+
+
+/*
 https://codereview.stackexchange.com/questions/37177/simpler-method-to-detect-int-overflow
 */
 int safe_add(int32_t a, int32_t b, int * error) {
