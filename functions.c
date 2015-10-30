@@ -3,10 +3,9 @@
 #include <limits.h>
 #include <string.h>
 #include <sys/errno.h>
-#include "nacl/include/amd64/crypto_hash.h"
-#include "nacl/include/amd64/crypto_verify_32.h"
 #include "functions.h"
 #include "base64.h"
+#include "bcrypt.h"
 
 #define INT_BUFFER_LENGTH 16
 
@@ -75,22 +74,27 @@ int verify_password_from_file(char * password){
 
   FILE * password_file = fopen(PASSWORD_FILE, "r");
   if (NULL != password_file){
+
+
     // Grab the base64 encoded hash from the passwords file
-    char stored_hash[HASH_BUF_LEN];
-    read_string_from_file(stored_hash, HASH_BUF_LEN, password_file, NULL);
+    char stored_hash[BCRYPT_HASHSIZE];
+    read_string_from_file(stored_hash, BCRYPT_HASHSIZE, password_file, NULL);
     fclose(password_file);
 
-    // Convert base 64 encoded PW hash into binary string
-    int stored_hash_num_bytes = Base64decode_len(stored_hash);
-    char * stored_hash_bytes = (char *) calloc(stored_hash_num_bytes, sizeof(char));
-    Base64decode(stored_hash_bytes, stored_hash);
+    return bcrypt_checkpw(password, stored_hash);
 
-    // Hash the user's submitted password
-    unsigned char hash[crypto_hash_BYTES];
-    crypto_hash(hash, (unsigned char *) password, strlen(password));
-
-    // Compare hashes using constant time function to prevent timing attacks
-    return crypto_verify_32((unsigned char *) stored_hash_bytes, hash);
+    //
+    // // Convert base 64 encoded PW hash into binary string
+    // int stored_hash_num_bytes = Base64decode_len(stored_hash);
+    // char * stored_hash_bytes = (char *) calloc(stored_hash_num_bytes, sizeof(char));
+    // Base64decode(stored_hash_bytes, stored_hash);
+    //
+    // // Hash the user's submitted password
+    // unsigned char hash[crypto_hash_BYTES];
+    // crypto_hash(hash, (unsigned char *) password, strlen(password));
+    //
+    // // Compare hashes using constant time function to prevent timing attacks
+    // return crypto_verify_32((unsigned char *) stored_hash_bytes, hash);
   }
   return 1;
 }
@@ -110,20 +114,28 @@ int store_password(char *password, FILE *output) {
 
     if (NULL != output) {
 
-        unsigned char hash[crypto_hash_BYTES];
-        // Invoke NaCl hash function (based on sha512) to hash the pw securely
-        crypto_hash(hash, (unsigned char *) password, strlen(password));
+      char salt[BCRYPT_HASHSIZE];
+      char hash[BCRYPT_HASHSIZE];
+      bcrypt_gensalt(12, salt);
 
-        // Determine how long the hashed version is
-        // and how long the base 64 version will be
-        size_t hash_length = strlen((char *) hash);
-        int encoded_length = Base64encode_len(hash_length);
+      bcrypt_hashpw(password, salt, hash);
 
-        // Allocate a buffer large enough for the Base 64 version of the hash
-        char *encoded_hash = (char *) calloc(encoded_length, sizeof(char));
-        Base64encode(encoded_hash, (char *) hash, hash_length);
+      output_to_stream(hash, output);
 
-        output_to_stream(encoded_hash, output);
+        // unsigned char hash[crypto_hash_BYTES];
+        // // Invoke NaCl hash function (based on sha512) to hash the pw securely
+        // crypto_hash(hash, (unsigned char *) password, strlen(password));
+        //
+        // // Determine how long the hashed version is
+        // // and how long the base 64 version will be
+        // size_t hash_length = strlen((char *) hash);
+        // int encoded_length = Base64encode_len(hash_length);
+        //
+        // // Allocate a buffer large enough for the Base 64 version of the hash
+        // char *encoded_hash = (char *) calloc(encoded_length, sizeof(char));
+        // Base64encode(encoded_hash, (char *) hash, hash_length);
+        //
+        // output_to_stream(encoded_hash, output);
 
         return 0;
     }
