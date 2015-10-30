@@ -29,7 +29,7 @@ int compare_file_paths(char * path1, char * path2){
     return 0;
   }
 
-  int i;
+  uint32_t i;
   for (i = 0; i < path2_len; i++){
     if (path1[i] != path2[i]){
       return 0;

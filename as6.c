@@ -1,27 +1,47 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "functions.h"
 
 #define STR_BUF_LEN 50
 #define FILENAME_BUF_LEN 255
-#define PW_BUF_LEN 65\
+#define PW_BUF_LEN 65
 
-FILE * get_input_file(){
-  //read input file name
-  char input_filename[FILENAME_BUF_LEN];
-  FILE * input_file = NULL;
+FILE * gather_filename_and_open(const char * prompt, const char * mode){
 
-  while (NULL == input_file){
-    read_string_from_file(input_filename, FILENAME_BUF_LEN, stdin, "Enter input file path: ");
-    input_file = fopen(input_filename, "r");
+  if (NULL == prompt || NULL == mode){
+    return NULL;
+  }
 
-    if(NULL == input_file){
+  //read file name
+  char filename[PATH_MAX];
+  char cwd[PATH_MAX];
+  char resolved_path[PATH_MAX];
+
+  FILE * file = NULL;
+
+  while (NULL == file){
+    read_string_from_file(filename, FILENAME_BUF_LEN, stdin, prompt);
+
+    realpath(filename, resolved_path);
+    getcwd(cwd, PATH_MAX);
+
+    // Input file should be a subpath of current directory
+    int path_is_sub_dir = compare_file_paths(resolved_path, cwd);
+
+    if (!path_is_sub_dir){
+        printf("%s\n", "File path must be a subdirectory of current path.");
+        continue;
+    }
+    file = fopen(filename, mode);
+
+    if(NULL == file){
       printf("%s\n", "File does not exist or cannot read file.");
     }
   }
-  return input_file;
+  return file;
 }
 
 void write_to_output_file(FILE * input_file, FILE * output_file, int32_t int_val2,
@@ -117,20 +137,13 @@ int main(){
   //read last name
   read_string_from_file(lname, STR_BUF_LEN, stdin, "Enter last name: ");
 
-  printf("%s", fname);
-  printf("%s", lname);
-
   //read two int values
   int int_val1, int_val2;
   int_val1 = read_int_from_file();
   int_val2 = read_int_from_file();
 
-  FILE * input_file = get_input_file();
-
-  //read output file name
-  char output_filename[FILENAME_BUF_LEN];
-  read_string_from_file(output_filename, FILENAME_BUF_LEN, stdin, "Enter output file path: ");
-  FILE * output_file = fopen(output_filename, "w");
+  FILE * input_file = gather_filename_and_open("Enter input file path: ", "r");
+  FILE * output_file = gather_filename_and_open("Enter output file path: ", "w");
 
   gather_and_verify_password();
 
