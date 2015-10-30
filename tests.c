@@ -8,21 +8,24 @@ void print_result(int value, int error){
 
 void test_compare_file_paths(){
 
+  // should succeed
   char a[] = "/a/b/c/d/e";
   char b[] = "/a/b/c/d";
 
   int matches = compare_file_paths(a, b);
-  printf("%s matches %s ? %d\n", a, b, matches);
+  printf("%s subpath of %s ? %d\n", a, b, matches);
 
+  // should fail, paths differnt after b
   char c[] = "/a/b/c/d";
   char d[] = "/a/b/d";
   matches = compare_file_paths(c,d);
-  printf("%s matches %s ? %d\n", c, d, matches);
+  printf("%s subpath of %s ? %d\n", c, d, matches);
 
+  // should fail, path e not a subpath of f
   char e[] = "/a/b/c/";
   char f[] = "/a/b/c/d";
   matches = compare_file_paths(e,f);
-  printf("%s matches %s ? %d\n", e, f, matches);
+  printf("%s subpath of %s ? %d\n", e, f, matches);
 
 }
 

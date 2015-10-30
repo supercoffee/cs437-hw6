@@ -24,12 +24,13 @@ int compare_file_paths(char * path1, char * path2){
 
   size_t path1_len = strlen(path1), path2_len = strlen(path2);
 
-  if (path1_len  > path2_len){
+  // Path1 cannot be a subpath if it's shorter than path2
+  if (path1_len < path2_len){
     return 0;
   }
 
   int i;
-  for (i = 0; i < path1_len; i++){
+  for (i = 0; i < path2_len; i++){
     if (path1[i] != path2[i]){
       return 0;
     }
@@ -43,7 +44,7 @@ https://codereview.stackexchange.com/questions/37177/simpler-method-to-detect-in
 */
 int safe_add(int32_t a, int32_t b, int * error) {
 
-    int32_t result; 
+    int32_t result;
 
     int overflow = __builtin_sadd_overflow(a, b, &result);
     if (overflow){
