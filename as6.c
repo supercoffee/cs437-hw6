@@ -6,7 +6,6 @@
 #include "functions.h"
 
 #define STR_BUF_LEN 50
-#define FILENAME_BUF_LEN 255
 #define PW_BUF_LEN 65
 
 FILE * gather_filename_and_open(const char * prompt, const char * mode){
@@ -23,7 +22,7 @@ FILE * gather_filename_and_open(const char * prompt, const char * mode){
   FILE * file = NULL;
 
   while (NULL == file){
-    read_string_from_file(filename, FILENAME_BUF_LEN, stdin, prompt);
+    read_string_from_file(filename, PATH_MAX, stdin, prompt);
 
     realpath(filename, resolved_path);
     getcwd(cwd, PATH_MAX);
