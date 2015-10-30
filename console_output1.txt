@@ -1,0 +1,10 @@
+Benjamins-MacBook-Pro:assignment6 ben$ ./as6
+Enter first name: Benjamin
+Enter last name: Daschel
+Enter an integer: 123
+Enter an integer: 999999
+Enter input file path: makefile
+Enter output file path: output.txt
+Enter password (8-64 chars): drowssap
+Enter password again: drowssap
+Benjamins-MacBook-Pro:assignment6 ben$
