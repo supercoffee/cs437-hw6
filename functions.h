@@ -6,7 +6,7 @@
 
 #define PASSWORD_FILE "password.txt"
 
-void read_string_from_file(char *buffer, size_t length, FILE *input,
+void read_string_from_file(char *buffer, int length, FILE *input,
                            const char *prompt);
 
 int str_to_int(const char * in, int * error);

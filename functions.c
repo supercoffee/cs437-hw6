@@ -154,7 +154,7 @@ int seek_to_newline(FILE *stream) {
     return ctr;
 }
 
-void read_string_from_file(char *buffer, size_t length, FILE *input,
+void read_string_from_file(char *buffer, int length, FILE *input,
                            const char *prompt) {
 
     if (NULL != prompt) {
@@ -162,11 +162,13 @@ void read_string_from_file(char *buffer, size_t length, FILE *input,
     }
 
     if (NULL != buffer && NULL != input) {
-        fgets(buffer, (int)length, input);
+        fgets(buffer, length, input);
         // Replace newline character with null byte.
         // https://stackoverflow.com/questions/2693776/removing-trailing-newline-character-from-fgets-input
 
-        size_t chars_read = strcspn(buffer, "\n");
+        // Not ideal, but because fgets will never read more than INT_MAX,
+        // size_t can be downcast to an int safely
+        int chars_read = (int) strcspn(buffer, "\n");
 
         // If no newline occurs before the end of the string, then it must be
         // sitting on the buffer and needs to be removed.
